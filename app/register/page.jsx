@@ -127,7 +127,7 @@ export default function RegisterPage() {
       <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
         KASTURI VIJAYAM PRESENTS
       </h2>
-      <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold mb-4 leading-tight">
+      <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
         [ EVENT NAME ]
       </h1>
 
