@@ -14,7 +14,7 @@ export default function HostPage() {
   const [selectedUser, setSelectedUser] = useState(null) // State for the selected user
   const [searchQuery, setSearchQuery] = useState("") // State for search query
 
-  const allowedEmails = ["codecraftcreate.dev@gmail.com"]
+  const allowedEmails = ["host.kvrs@gmail.com"]
   const supabase = createClient()
 
   useEffect(() => {
