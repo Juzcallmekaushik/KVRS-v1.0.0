@@ -99,7 +99,7 @@ export default function HostPage() {
       {/* Header with title and logout */}
       <div className="flex justify-between items-start mb-16">
         <div>
-          <h1 className="text-4xl font-black">Host Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black">Host Dashboard</h1>
         </div>
 
         {/* Logout button positioned at the top right */}
@@ -126,7 +126,7 @@ export default function HostPage() {
       </div>
 
       {/* Display clickable boxes with user data */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
             <div
