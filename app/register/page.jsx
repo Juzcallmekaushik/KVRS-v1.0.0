@@ -124,10 +124,10 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center text-center px-6 py-12">
-      <h2 className="text-xl sm:text-2xl md:text-base lg:text-lg font-semibold tracking-wide">
+      <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
         KASTURI VIJAYAM PRESENTS
       </h2>
-      <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-2 leading-tight">
+      <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold mb-4 leading-tight">
         [ EVENT NAME ]
       </h1>
 
