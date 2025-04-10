@@ -57,7 +57,7 @@ export default function RegisterPage() {
     };
 
     // Redirect if email matches the host email
-    if (session.user.email === process.env.NEXT_PUBLIC_HOST_EMAIL) {
+    if (session.user.email === "host.kvrs@gmail.com") {
       router.push("/host"); // Redirect to the Host page
       return;
     }
