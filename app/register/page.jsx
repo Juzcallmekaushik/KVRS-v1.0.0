@@ -71,10 +71,10 @@ export default function RegisterPage() {
     setLoading(true);
 
     const { name, email, phone } = userInfo;
-    const phoneRegex = /^\d{9}$/;
 
-    if (!phoneRegex.test(phone)) {
-      setPhoneError("Phone number must be exactly 10 digits.");
+    // Allow phone number to be up to 10 digits
+    if (phone.length === 0 || phone.length > 10) {
+      setPhoneError("Phone number must be between 1 and 10 digits.");
       setLoading(false);
       return;
     } else {
