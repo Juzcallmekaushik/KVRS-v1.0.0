@@ -2,7 +2,7 @@ import { google } from "googleapis";
 
 export async function POST(req) {
   try {
-    const { name, email, phone, luckyNumber } = await req.json();
+    const { luckyNumber, name, email, phone } = await req.json();
 
     const auth = new google.auth.GoogleAuth({
       credentials: {
@@ -19,7 +19,7 @@ export async function POST(req) {
       range: "Sheet1!A:D",
       valueInputOption: "RAW",
       requestBody: {
-        values: [[name, email, phone, luckyNumber]],
+        values: [[luckyNumber, name, email, phone]],
       },
     });
 

@@ -1,108 +1,140 @@
-"use client"
+"use client";
 
-import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabaseClient" // Import Supabase client to fetch user data
-import { Search } from "lucide-react" // Import search icon
+import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabaseClient";
+import { Search, Trash } from "lucide-react";
 
 export default function HostPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [selectedUser, setSelectedUser] = useState(null) // State for the selected user
-  const [searchQuery, setSearchQuery] = useState("") // State for search query
-
-  const allowedEmails = ["host.kvrs@gmail.com"]
-  const supabase = createClient()
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [deletedUsers, setDeletedUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDeletedModal, setShowDeletedModal] = useState(false);
+  const allowedEmails = ["host.kvrs@gmail.com"];
+  const supabase = createClient();
 
   useEffect(() => {
-    if (status === "loading") return
-
-    // If not logged in or not an allowed user, redirect to the registration page
+    if (status === "loading") return;
     if (!session || !allowedEmails.includes(session.user.email)) {
-      router.replace("/")
-      return
+      router.replace("/");
+      return;
     }
-
-    // Fetch user data from Supabase
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from("users").select("*")
-      if (error) {
-        console.error("Error fetching users:", error.message)
-      } else {
-        setUsers(data)
-        setFilteredUsers(data) // Initialize filtered users with all users
+      const { data, error } = await supabase.from("users").select("*");
+      if (!error) {
+        setUsers(data);
+        setFilteredUsers(data);
       }
-    }
+    };
+    fetchUsers();
+  }, [session, status, router, supabase]);
 
-    fetchUsers()
-  }, [session, status, router, supabase])
-
-  // Filter users based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredUsers(users) // If search is empty, show all users
-      return
+      setFilteredUsers(users);
+      return;
     }
-
-    const query = searchQuery.toLowerCase().trim()
+    const query = searchQuery.toLowerCase().trim();
     const filtered = users.filter(
       (user) =>
-        // Search in lucky number (convert to string first)
         user.lucky_number?.toString().includes(query) ||
-        // Search in name
-        user.name
-          ?.toLowerCase()
-          .includes(query) ||
-        // Search in email
-        user.email
-          ?.toLowerCase()
-          .includes(query) ||
-        // Search in phone
-        user.phone
-          ?.toLowerCase()
-          .includes(query),
-    )
-
-    setFilteredUsers(filtered)
-  }, [searchQuery, users])
+        user.name?.toLowerCase().includes(query) ||
+        user.email?.toLowerCase().includes(query) ||
+        user.phone?.toLowerCase().includes(query)
+    );
+    setFilteredUsers(filtered);
+  }, [searchQuery, users]);
 
   const handleBoxClick = (user) => {
-    setSelectedUser(user) // Set the selected user to show in the modal
-  }
+    setSelectedUser(user);
+  };
 
   const handleCloseModal = () => {
-    setSelectedUser(null) // Close the modal by resetting the selected user
-  }
+    setSelectedUser(null);
+  };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value)
-  }
+    setSearchQuery(e.target.value);
+  };
 
-  // Prevent "Checking access" when session is not available
-  if (status === "loading" || !session) {
-    return null // Don't render anything when loading or if no session exists
-  }
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    const confirmed = window.confirm("Are you sure you want to delete this user?");
+    if (!confirmed) return;
+    try {
+      // Insert the deleted user with name, email, phone, lucky_number, and deleted_at
+      const { error: insertError } = await supabase
+        .from("deleted_users")
+        .insert([
+          {
+            lucky_number: selectedUser.lucky_number,
+            name: selectedUser.name,
+            email: selectedUser.email,
+            phonenumber: selectedUser.phone,
+            deleted_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (insertError) {
+        console.error("Insert to deleted_users failed:", insertError.message);
+        alert("Failed to archive lucky number.");
+        return;
+      }
+
+      // Delete the user from the "users" table
+      const { error: deleteError } = await supabase
+        .from("users")
+        .delete()
+        .eq("email", selectedUser.email);
+
+      if (deleteError) {
+        console.error("Delete from users failed:", deleteError.message);
+        alert("Failed to delete user from Supabase.");
+        return;
+      }
+
+      // Update the local state to reflect the changes
+      setUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
+      setFilteredUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
+      setSelectedUser(null);
+      alert("User deleted and archived successfully.");
+    } catch (err) {
+      console.error("Unexpected error deleting user:", err);
+      alert("Something went wrong.");
+    }
+  };
+
+  const fetchDeletedUsers = async () => {
+    const { data, error } = await supabase
+      .from("deleted_users")
+      .select("id, lucky_number, name, email, phonenumber, deleted_at")
+      .order("deleted_at", { ascending: true });
+    
+    if (!error) {
+      setDeletedUsers(data);
+      setShowDeletedModal(true);
+    }
+  };
+
+  if (status === "loading" || !session) return null;
 
   if (!allowedEmails.includes(session?.user?.email)) {
     return (
       <div className="min-h-screen flex justify-center items-center bg-black text-white">
         <p className="animate-pulse">Access Denied</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-black text-white p-6 relative pb-16">
-      {/* Header with title and logout */}
       <div className="flex justify-between items-start mb-16">
-        <div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black">Host Dashboard</h1>
-        </div>
-
-        {/* Logout button positioned at the top right */}
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black">Host Dashboard</h1>
         <button
           onClick={() => signOut()}
           className="text-red-600 font-semibold hover:text-red-500 transition-all duration-200"
@@ -111,8 +143,10 @@ export default function HostPage() {
         </button>
       </div>
 
-      {/* Search bar positioned at the top right below logout */}
-      <div className="absolute top-16 right-6 mt-4">
+      <div className="absolute top-16 right-6 mt-4 flex items-center gap-2">
+        <button onClick={fetchDeletedUsers} className="text-gray-400 hover:text-white">
+          <Trash size={18} />
+        </button>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
           <input
@@ -125,14 +159,13 @@ export default function HostPage() {
         </div>
       </div>
 
-      {/* Display clickable boxes with user data */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
             <div
               key={user.email}
               className="bg-[#131824] text-white rounded-lg shadow-lg p-3 cursor-pointer hover:bg-gray-200 hover:text-black transition-all duration-200"
-              onClick={() => handleBoxClick(user)} // Open modal when box is clicked
+              onClick={() => handleBoxClick(user)}
             >
               <h1 className="text-sm text-center font-bold">Lucky Number</h1>
               <h3 className="text-4xl font-black text-center">{user.lucky_number}</h3>
@@ -145,43 +178,105 @@ export default function HostPage() {
         )}
       </div>
 
-      {/* Fixed position results count at the bottom */}
       <div className="fixed bottom-0 left-0 right-0 py-3 bg-black text-center">
         <p className="text-sm text-gray-500">
           Showing {filteredUsers.length} of {users.length} users
         </p>
       </div>
 
-      {/* Modal for displaying user details */}
       {selectedUser && (
         <div
           className="fixed inset-0 bg-black/80 flex justify-center items-center"
-          onClick={handleCloseModal} // Close when clicking the overlay
+          onClick={handleCloseModal}
         >
           <div
-            className="bg-white text-black rounded-lg p-6 w-96 max-w-full relative"
-            onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
+            className="bg-white text-black rounded-lg p-6 pt-10 w-96 max-w-full relative"
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Cross icon positioned at the top right of the modal */}
-            <button onClick={handleCloseModal} className="absolute top-0.5 right-2 text-black font-normal text-2xl">
-              &times;
-            </button>
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={handleDeleteUser}
+                title="Delete User"
+                className="text-red-800 hover:text-red-600 transition-all"
+              >
+                <Trash size={16} />
+              </button>
+              <button
+                onClick={handleCloseModal}
+                title="Close"
+                className="text-black text-2xl leading-none hover:text-gray-700 transition-all"
+              >
+                &times;
+              </button>
+            </div>
             <h2 className="text-2xl font-semibold mb-4">User Details</h2>
-            <p>
-              <strong>Name:</strong> {selectedUser.name}
-            </p>
-            <p>
-              <strong>Email:</strong> {selectedUser.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {selectedUser.phone}
-            </p>
-            <p>
-              <strong>Lucky Number:</strong> {selectedUser.lucky_number}
-            </p>
+            <p><strong>Name:</strong> {selectedUser.name}</p>
+            <p><strong>Email:</strong> {selectedUser.email}</p>
+            <p><strong>Phone:</strong> {selectedUser.phone}</p>
+            <p><strong>Lucky Number:</strong> {selectedUser.lucky_number}</p>
+          </div>
+        </div>
+      )}
+
+      {showDeletedModal && (
+        <div
+          className="fixed inset-0 bg-black/80 flex justify-center items-center z-50"
+          onClick={() => setShowDeletedModal(false)}
+        >
+          <div
+            className="bg-white text-black rounded-lg p-6 w-auto max-w-5xl overflow-y-auto max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold">Deleted Users</h2>
+              <button
+                className="text-gray-600 hover:text-black text-2xl"
+                onClick={() => setShowDeletedModal(false)}
+              >
+                &times;
+              </button>
+            </div>
+            
+            {/* Table for deleted users with borders */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto text-sm border-collapse">
+                <thead className="bg-gray-300">
+                  <tr>
+                    <th className="py-2 px-4 text-left border border-black">ID</th>
+                    <th className="py-2 px-4 text-left border border-black">Lucky Number</th>
+                    <th className="py-2 px-4 text-left border border-black">Name</th>
+                    <th className="py-2 px-4 text-left border border-black">Email</th>
+                    <th className="py-2 px-4 text-left border border-black">Phone</th>
+                    <th className="py-2 px-4 text-left border border-black">Deleted Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deletedUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="py-2 px-4 text-center text-black border border-black">
+                        No deleted users found.
+                      </td>
+                    </tr>
+                  ) : (
+                    deletedUsers.map((user) => (
+                      <tr key={user.id}>
+                        <td className="py-2 px-4 border border-black">{user.id}</td>
+                        <td className="py-2 px-4 border border-black">{user.lucky_number}</td>
+                        <td className="py-2 px-4 border border-black">{user.name}</td>
+                        <td className="py-2 px-4 border border-black">{user.email}</td>
+                        <td className="py-2 px-4 border border-black">{user.phonenumber}</td>
+                        <td className="py-2 px-4 border border-black">
+                          {new Date(user.deleted_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

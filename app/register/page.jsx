@@ -1,25 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Import useRouter for redirection
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabaseClient";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
+  const [userInfo, setUserInfo] = useState({ name: "", email: "", phone: "" });
   const [countryCode, setCountryCode] = useState("+91");
   const [phoneError, setPhoneError] = useState("");
   const [userChecked, setUserChecked] = useState(false);
 
   const { data: session, status } = useSession();
-  const router = useRouter(); // Router for navigation
+  const router = useRouter();
   const supabase = createClient();
 
-  // Check if user already exists + fetch country code
   useEffect(() => {
     if (status === "loading" || !session) return;
 
@@ -43,7 +38,7 @@ export default function RegisterPage() {
     };
 
     const checkIfUserExists = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("users")
         .select("*")
         .eq("email", user.email)
@@ -56,9 +51,8 @@ export default function RegisterPage() {
       }
     };
 
-    // Redirect if email matches the host email
     if (session.user.email === "host.kvrs@gmail.com") {
-      router.push("/host"); // Redirect to the Host page
+      router.push("/host");
       return;
     }
 
@@ -72,7 +66,6 @@ export default function RegisterPage() {
 
     const { name, email, phone } = userInfo;
 
-    // Allow phone number to be up to 10 digits
     if (phone.length === 0 || phone.length > 10) {
       setPhoneError("Phone number must be between 1 and 10 digits.");
       setLoading(false);
@@ -84,9 +77,9 @@ export default function RegisterPage() {
     const fullPhone = `${countryCode} ${phone}`;
     const luckyNumber = Math.floor(Math.random() * 1000) + 1;
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("users")
-      .upsert([{ name, email, phone: fullPhone, lucky_number: luckyNumber }]);
+      .upsert([{ lucky_number: luckyNumber, name, email, phone: fullPhone }]);
 
     if (error) {
       console.error("Error saving user data to Supabase:", error.message);
@@ -97,7 +90,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/add-to-sheets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone: fullPhone, luckyNumber }),
+      body: JSON.stringify({ luckyNumber, name, email, phone: fullPhone }),
     });
 
     if (!res.ok) {
@@ -122,26 +115,10 @@ export default function RegisterPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-black text-white flex flex-col justify-center items-center text-center px-6 py-12">
-      <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
-        KASTURI VIJAYAM PRESENTS
-      </h2>
-      <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
-        [ EVENT NAME ]
-      </h1>
-
-      {!session && (
-        <button
-          onClick={() => signIn("google")}
-          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black transition-all duration-200 active:bg-white active:text-black"
-        >
-          REGISTER
-        </button>
-      )}
-
-      {session && userChecked && (
-        <div className="mt-8 p-6 w-full max-w-md border border-white rounded-lg shadow-lg">
+  if (session && userChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 py-1 bg-black text-white">
+        <div className="p-6 w-full max-w-md border border-white rounded-lg shadow-lg bg-[#012719]/70 backdrop-blur">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="block text-sm font-medium text-left">Name</label>
@@ -150,11 +127,10 @@ export default function RegisterPage() {
                 name="name"
                 value={userInfo.name}
                 onChange={handleChange}
-                className="w-full p-2 mt-2 border border-white rounded-md text-white bg-transparent"
+                className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
                 disabled={loading || !!userInfo.name}
               />
             </div>
-
             <div className="mb-4">
               <label className="block text-sm font-medium text-left">Email</label>
               <input
@@ -162,11 +138,10 @@ export default function RegisterPage() {
                 name="email"
                 value={userInfo.email}
                 onChange={handleChange}
-                className="w-full p-2 mt-2 border border-white rounded-md text-white bg-transparent"
+                className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
                 disabled={loading || !!userInfo.email}
               />
             </div>
-
             <div className="mb-4">
               <label className="block text-sm font-medium text-left">Phone</label>
               <div className="flex items-center gap-2">
@@ -174,33 +149,63 @@ export default function RegisterPage() {
                   type="text"
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-transparent"
+                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black"
                 />
                 <input
                   type="text"
                   name="phone"
                   value={userInfo.phone}
                   onChange={handleChange}
-                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-transparent"
+                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
                   disabled={loading}
                   placeholder="0123456789"
                   required
                   maxLength={10}
                 />
               </div>
-              {phoneError && <p className="text-red-500 text-xs mt-2">{phoneError}</p>}
+              {phoneError && (
+                <p className="text-red-500 text-xs mt-2">{phoneError}</p>
+              )}
             </div>
-
             <button
               type="submit"
-              className="w-full py-2 mt-4 border border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition-all duration-200 active:bg-white active:text-black"
+              className="w-full py-2 mt-4 border border-white text-black bg-white font-semibold rounded-lg hover:bg-green-400 hover:text-black transition-all duration-200"
               disabled={loading}
             >
               {loading ? "Registering..." : "Confirm Registration"}
             </button>
           </form>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative min-h-screen text-white overflow-hidden">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      >
+        <source src="/home-bg.mp4" type="video/mp4" />
+      </video>
+      <div className="absolute top-0 left-0 w-full h-full bg-black/80 z-0" />
+      <div className="relative z-10 flex flex-col justify-center items-center text-center px-6 py-12 min-h-screen">
+        <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
+          KASTURI VIJAYAM PRESENTS
+        </h2>
+        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
+          [ EVENT NAME ]
+        </h1>
+        <button
+          onClick={() => signIn("google")}
+          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black transition-all duration-200"
+        >
+          REGISTER
+        </button>
+      </div>
     </div>
   );
 }
