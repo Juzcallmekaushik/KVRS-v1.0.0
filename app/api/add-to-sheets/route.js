@@ -2,7 +2,7 @@ import { google } from "googleapis";
 
 export async function POST(req) {
   try {
-    const { luckyNumber, name, email, phone } = await req.json();
+    const { luckyNumber, name, email, phone, isAuthor, isDonor } = await req.json();
 
     const auth = new google.auth.GoogleAuth({
       credentials: {
@@ -16,10 +16,10 @@ export async function POST(req) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: "Sheet1!A:D",
+      range: "Sheet1!A:F",
       valueInputOption: "RAW",
       requestBody: {
-        values: [[luckyNumber, name, email, phone]],
+        values: [[luckyNumber, name, email, phone, isAuthor, isDonor]],
       },
     });
 

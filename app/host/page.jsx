@@ -27,6 +27,7 @@ export default function HostPage() {
     const fetchUsers = async () => {
       const { data, error } = await supabase.from("users").select("*");
       if (!error) {
+        console.log("Fetched users:", data);
         setUsers(data);
         setFilteredUsers(data);
       }
@@ -45,7 +46,9 @@ export default function HostPage() {
         user.lucky_number?.toString().includes(query) ||
         user.name?.toLowerCase().includes(query) ||
         user.email?.toLowerCase().includes(query) ||
-        user.phone?.toLowerCase().includes(query)
+        user.phone?.toLowerCase().includes(query) ||
+        user.isAuthor?.toString().toLowerCase().includes(query) ||
+        user.isDonor?.toString().toLowerCase().includes(query)
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -67,7 +70,6 @@ export default function HostPage() {
     const confirmed = window.confirm("Are you sure you want to delete this user?");
     if (!confirmed) return;
     try {
-      // Insert the deleted user with name, email, phone, lucky_number, and deleted_at
       const { error: insertError } = await supabase
         .from("deleted_users")
         .insert([
@@ -86,7 +88,6 @@ export default function HostPage() {
         return;
       }
 
-      // Delete the user from the "users" table
       const { error: deleteError } = await supabase
         .from("users")
         .delete()
@@ -98,7 +99,6 @@ export default function HostPage() {
         return;
       }
 
-      // Update the local state to reflect the changes
       setUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setFilteredUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setSelectedUser(null);
@@ -114,7 +114,7 @@ export default function HostPage() {
       .from("deleted_users")
       .select("id, lucky_number, name, email, phonenumber, deleted_at")
       .order("deleted_at", { ascending: true });
-    
+
     if (!error) {
       setDeletedUsers(data);
       setShowDeletedModal(true);
@@ -213,6 +213,8 @@ export default function HostPage() {
             <p><strong>Name:</strong> {selectedUser.name}</p>
             <p><strong>Email:</strong> {selectedUser.email}</p>
             <p><strong>Phone:</strong> {selectedUser.phone}</p>
+            <p><strong>IsAuthor:</strong> {selectedUser.isAuthor ? "True" : "False"}</p>
+            <p><strong>IsDonor:</strong> {selectedUser.isDonor ? "True" : "False"}</p>
             <p><strong>Lucky Number:</strong> {selectedUser.lucky_number}</p>
           </div>
         </div>
@@ -236,8 +238,6 @@ export default function HostPage() {
                 &times;
               </button>
             </div>
-            
-            {/* Table for deleted users with borders */}
             <div className="overflow-x-auto">
               <table className="min-w-full table-auto text-sm border-collapse">
                 <thead className="bg-gray-300">

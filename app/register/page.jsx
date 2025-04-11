@@ -10,6 +10,8 @@ export default function RegisterPage() {
   const [countryCode, setCountryCode] = useState("+91");
   const [phoneError, setPhoneError] = useState("");
   const [userChecked, setUserChecked] = useState(false);
+  const [isDonor, setIsDonor] = useState(false);
+  const [isAuthor, setIsAuthor] = useState(false);
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -79,7 +81,14 @@ export default function RegisterPage() {
 
     const { error } = await supabase
       .from("users")
-      .upsert([{ lucky_number: luckyNumber, name, email, phone: fullPhone }]);
+      .upsert([{
+        lucky_number: luckyNumber,
+        name,
+        email,
+        phone: fullPhone,
+        is_donor: isDonor,
+        is_author: isAuthor,
+      }]);
 
     if (error) {
       console.error("Error saving user data to Supabase:", error.message);
@@ -90,7 +99,14 @@ export default function RegisterPage() {
     const res = await fetch("/api/add-to-sheets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ luckyNumber, name, email, phone: fullPhone }),
+      body: JSON.stringify({
+        luckyNumber,
+        name,
+        email,
+        phone: fullPhone,
+        isAuthor,
+        isDonor,
+      }),
     });
 
     if (!res.ok) {
@@ -166,6 +182,29 @@ export default function RegisterPage() {
               {phoneError && (
                 <p className="text-red-500 text-xs mt-2">{phoneError}</p>
               )}
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Select Roles</label>
+              <div className="flex gap-4 items-center">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isDonor}
+                    onChange={(e) => setIsDonor(e.target.checked)}
+                    className="mr-2 accent-green-500"
+                  />
+                  Donor
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isAuthor}
+                    onChange={(e) => setIsAuthor(e.target.checked)}
+                    className="mr-2 accent-green-500"
+                  />
+                  Author
+                </label>
+              </div>
             </div>
             <button
               type="submit"
