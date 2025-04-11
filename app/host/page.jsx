@@ -46,9 +46,7 @@ export default function HostPage() {
         user.lucky_number?.toString().includes(query) ||
         user.name?.toLowerCase().includes(query) ||
         user.email?.toLowerCase().includes(query) ||
-        user.phone?.toLowerCase().includes(query) ||
-        user.isAuthor?.toString().toLowerCase().includes(query) ||
-        user.isDonor?.toString().toLowerCase().includes(query)
+        user.phone?.toLowerCase().includes(query)
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -213,8 +211,6 @@ export default function HostPage() {
             <p><strong>Name:</strong> {selectedUser.name}</p>
             <p><strong>Email:</strong> {selectedUser.email}</p>
             <p><strong>Phone:</strong> {selectedUser.phone}</p>
-            <p><strong>IsAuthor:</strong> {selectedUser.isAuthor ? "True" : "False"}</p>
-            <p><strong>IsDonor:</strong> {selectedUser.isDonor ? "True" : "False"}</p>
             <p><strong>Lucky Number:</strong> {selectedUser.lucky_number}</p>
           </div>
         </div>
