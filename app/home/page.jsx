@@ -75,7 +75,7 @@ export default function HomePage() {
         <div className="mt-10">
           <button
             onClick={() => signOut({ callbackUrl: "/register" })}
-            className="text-sm text-red-500 font-medium hover:underline focus:outline-none"
+            className="text-sm text-red-500 font-medium hover:underline focus:outline-none cursor-pointer"
           >
             Logout
           </button>

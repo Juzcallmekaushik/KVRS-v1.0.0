@@ -165,14 +165,14 @@ export default function RegisterPage() {
                   type="text"
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black"
+                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black cursor-pointer"
                 />
                 <input
                   type="text"
                   name="phone"
                   value={userInfo.phone}
                   onChange={handleChange}
-                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
+                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black cursor-pointer"
                   disabled={loading}
                   placeholder="0123456789"
                   required
@@ -186,7 +186,7 @@ export default function RegisterPage() {
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Select Roles</label>
               <div className="flex gap-4 items-center">
-                <label className="inline-flex items-center">
+                <label className="inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isDonor}
@@ -195,7 +195,7 @@ export default function RegisterPage() {
                   />
                   Donor
                 </label>
-                <label className="inline-flex items-center">
+                <label className="inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isAuthor}
@@ -208,7 +208,7 @@ export default function RegisterPage() {
             </div>
             <button
               type="submit"
-              className="w-full py-2 mt-4 border border-white text-black bg-white font-semibold rounded-lg hover:bg-green-400 hover:text-black transition-all duration-200"
+              className="w-full py-2 mt-4 border border-white text-black bg-white font-semibold rounded-lg hover:bg-green-400 hover:text-black transition-all duration-200 cursor-pointer"
               disabled={loading}
             >
               {loading ? "Registering..." : "Confirm Registration"}
@@ -240,7 +240,7 @@ export default function RegisterPage() {
         </h1>
         <button
           onClick={() => signIn("google")}
-          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black transition-all duration-200"
+          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black transition-all duration-200 cursor-pointer"
         >
           REGISTER
         </button>

@@ -135,14 +135,14 @@ export default function HostPage() {
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black">Host Dashboard</h1>
         <button
           onClick={() => signOut()}
-          className="text-red-600 font-semibold hover:text-red-500 transition-all duration-200"
+          className="text-red-600 font-semibold hover:text-red-500 transition-all duration-200 cursor-pointer"
         >
           Logout
         </button>
       </div>
 
       <div className="absolute top-16 right-6 mt-4 flex items-center gap-2">
-        <button onClick={fetchDeletedUsers} className="text-gray-400 hover:text-white">
+        <button onClick={fetchDeletedUsers} className="text-gray-400 hover:text-white cursor-pointer">
           <Trash size={18} />
         </button>
         <div className="relative">
@@ -195,14 +195,14 @@ export default function HostPage() {
               <button
                 onClick={handleDeleteUser}
                 title="Delete User"
-                className="text-red-800 hover:text-red-600 transition-all"
+                className="text-red-800 hover:text-red-600 transition-all cursor-pointer"
               >
                 <Trash size={16} />
               </button>
               <button
                 onClick={handleCloseModal}
                 title="Close"
-                className="text-black text-2xl leading-none hover:text-gray-700 transition-all"
+                className="text-black text-2xl leading-none hover:text-gray-700 transition-all cursor-pointer"
               >
                 &times;
               </button>
@@ -228,7 +228,7 @@ export default function HostPage() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Deleted Users</h2>
               <button
-                className="text-gray-600 hover:text-black text-2xl"
+                className="text-gray-600 hover:text-black text-2xl cursor-pointer"
                 onClick={() => setShowDeletedModal(false)}
               >
                 &times;

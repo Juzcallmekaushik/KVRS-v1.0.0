@@ -1,5 +1,5 @@
 export const metadata = {
-    title: "Home - Your Details",
+    title: "Registration Summary",
   };
   
   export default function HomeLayout({ children }) {

@@ -1,5 +1,5 @@
 export const metadata = {
-    title: "Host Dashboard",
+    title: "Host Console",
   };
   
   export default function HostLayout({ children }) {
