@@ -186,21 +186,21 @@ export default function RegisterPage() {
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Select Roles</label>
               <div className="flex gap-4 items-center">
-                <label className="inline-flex items-center cursor-pointer">
+                <label className="inline-flex items-center">
                   <input
                     type="checkbox"
                     checked={isDonor}
                     onChange={(e) => setIsDonor(e.target.checked)}
-                    className="mr-2 accent-green-500"
+                    className="mr-2 accent-green-500 cursor-pointer"
                   />
                   Donor
                 </label>
-                <label className="inline-flex items-center cursor-pointer">
+                <label className="inline-flex items-center">
                   <input
                     type="checkbox"
                     checked={isAuthor}
                     onChange={(e) => setIsAuthor(e.target.checked)}
-                    className="mr-2 accent-green-500"
+                    className="mr-2 accent-green-500 cursor-pointer"
                   />
                   Author
                 </label>
