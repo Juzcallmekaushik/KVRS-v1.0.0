@@ -54,14 +54,6 @@ export default function HomePage() {
     return null; // Prevent rendering anything while redirecting
   }
 
-  // Determine roles based on is_donor and is_author
-  const roles = (() => {
-    if (userDetails.is_donor && userDetails.is_author) return "Donor & Author";
-    if (userDetails.is_donor) return "Donor";
-    if (userDetails.is_author) return "Author";
-    return "N/A";
-  })();
-
   return (
     <div className="min-h-screen flex justify-center items-center px-6 py-12">
       <div className="w-full max-w-md border-white border-1 bg-[#000715] text-white p-6 rounded-lg shadow-lg">
@@ -70,7 +62,7 @@ export default function HomePage() {
           <h3 className="font-black text-5xl text-center mb-0">{userDetails.lucky_number}</h3>
         </div>
         <div className="border-t border-white my-5 "></div>
-        <div className="mb-3 ">
+        <div className="mb-3">
           <p className="text-sm font-medium text-left">Name</p>
           <p className="text-lg">{userDetails.name}</p>
         </div>
@@ -82,10 +74,20 @@ export default function HomePage() {
           <p className="text-sm font-medium text-left">Phone</p>
           <p className="text-lg">{userDetails.phone}</p>
         </div>
-        <div className="mb-3">
-          <p className="text-sm font-medium text-left">Roles</p>
-          <p className="text-lg text-green-300"><strong>{roles}</strong></p>
-        </div>
+        {(userDetails.is_donor || userDetails.is_author) && (
+          <div className="mb-3">
+            <p className="text-sm font-medium text-left">Roles</p>
+            <p className="text-lg text-green-300">
+              <strong>
+                {userDetails.is_donor && userDetails.is_author
+                  ? "Donor & Author"
+                  : userDetails.is_donor
+                  ? "Donor"
+                  : "Author"}
+              </strong>
+            </p>
+          </div>
+        )}
         <div className="mt-5">
           <button
             onClick={() => signOut({ callbackUrl: "/register" })}

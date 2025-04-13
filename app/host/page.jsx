@@ -213,7 +213,11 @@ export default function HostPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filteredUsers.length > 0 ? (
+        {users.length === 0 ? (
+          <div className="col-span-full flex justify-center items-center min-h-[50vh]">
+            <p className="text-gray-400 text-center">😅 Whoops! No one’s signed up yet — spread the word and get the ball rolling!</p>
+          </div>
+        ) : filteredUsers.length > 0 ? (
           filteredUsers.map((user) => {
             let boxColor = "bg-[#131824] text-white";
 
@@ -237,8 +241,8 @@ export default function HostPage() {
             );
           })
         ) : (
-          <div className="col-span-full text-center py-10">
-            <p className="text-gray-400">No users found matching your search.</p>
+          <div className="col-span-full flex justify-center items-center min-h-[50vh]">
+            <p className="text-gray-400 text-center">🔍 No users found matching your search — try adjusting your search terms.</p>
           </div>
         )}
       </div>

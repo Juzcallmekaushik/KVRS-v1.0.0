@@ -184,7 +184,7 @@ export default function RegisterPage() {
             <div className="mb-4">
               <label className="block text-sm font-medium text-left">Phone</label>
               <div className="flex items-center mt-2 border border-white rounded-md overflow-hidden bg-black">
-                <span className="px-3 text-white text-sm whitespace-nowrap select-none bg-black/40 border-r border-white">
+                <span className="px-3 text-white text-sm whitespace-nowrap select-none bg-black/40">
                   {countryCode}
                 </span>
                 <input
