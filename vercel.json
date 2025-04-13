@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "kvrs-v1.vercel.app"
+        }
+      ],
+      "destination": "https://registration.kasturivijayam.com/$1",
+      "permanent": true
+    }
+  ]
+}
