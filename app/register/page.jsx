@@ -56,7 +56,7 @@ export default function RegisterPage() {
       }
     };
 
-    if (session.user.email === "host.kvrs@gmail.com") {
+    if (session.user.email === process.env.NEXT_PUBLIC_HOST_EMAIL) {
       router.push("/host");
       return;
     }

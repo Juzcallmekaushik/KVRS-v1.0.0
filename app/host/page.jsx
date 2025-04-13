@@ -15,7 +15,7 @@ export default function HostPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeletedModal, setShowDeletedModal] = useState(false);
-  const allowedEmails = ["host.kvrs@gmail.com"];
+  const allowedEmails = [process.env.NEXT_PUBLIC_HOST_EMAIL];
   const supabase = createClient();
 
   useEffect(() => {
