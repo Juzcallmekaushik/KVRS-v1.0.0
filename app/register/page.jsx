@@ -65,13 +65,32 @@ export default function RegisterPage() {
     checkIfUserExists();
   }, [session, status, router]);
 
+  const formatPhoneNumber = (phone, countryIso2) => {
+    const parsedPhone = parsePhoneNumberFromString(phone, countryIso2);
+    if (!parsedPhone || !parsedPhone.isValid()) return phone;
+
+    const national = parsedPhone.nationalNumber;
+    if (countryIso2 === "IN") {
+      return `${national.slice(0, 5)} ${national.slice(5)}`;
+    } else if (countryIso2 === "MY") {
+      return `${national.slice(0, 2)} ${national.slice(2, 5)} ${national.slice(5)}`;
+    } else {
+      return national.match(/.{1,3}/g)?.join(" ") || national;
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    setUserInfo((prev) => ({ ...prev, phone: raw }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     const { name, email, phone } = userInfo;
-
     const parsedPhone = parsePhoneNumberFromString(phone, countryIso2);
+
     if (!parsedPhone || !parsedPhone.isValid()) {
       setPhoneError("Please enter a valid phone number.");
       setLoading(false);
@@ -80,7 +99,7 @@ export default function RegisterPage() {
 
     setPhoneError("");
 
-    const fullPhone = `+${parsedPhone.countryCallingCode} ${parsedPhone.nationalNumber}`;
+    const fullPhone = parsedPhone.formatInternational();
     const luckyNumber = Math.floor(Math.random() * 1000) + 1;
 
     const { error } = await supabase
@@ -164,22 +183,19 @@ export default function RegisterPage() {
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-left">Phone</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={countryCode}
-                  disabled
-                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black cursor-not-allowed"
-                />
+              <div className="flex items-center mt-2 border border-white rounded-md overflow-hidden bg-black">
+                <span className="px-3 text-white text-sm whitespace-nowrap select-none bg-black/40 border-r border-white">
+                  {countryCode}
+                </span>
                 <input
                   type="tel"
                   name="phone"
-                  value={userInfo.phone}
-                  onChange={handleChange}
-                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black cursor-pointer"
+                  value={formatPhoneNumber(userInfo.phone, countryIso2)}
+                  onChange={handlePhoneChange}
+                  className="w-full p-2 text-white bg-black placeholder-gray-400 focus:outline-none"
                   disabled={loading}
-                  placeholder="Enter phone number"
-                  maxLength={10}
+                  placeholder="0123456789"
+                  maxLength={15}
                   required
                 />
               </div>
