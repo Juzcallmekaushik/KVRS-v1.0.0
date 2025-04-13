@@ -255,12 +255,12 @@ export default function RegisterPage() {
         <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
           KASTURI VIJAYAM'S
         </h2>
-        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
-          [ EVENT NAME ]
+        <h1 className="text-2xl sm:text-2xl md:text-4xl lg:text-6xl font-black mb-4 leading-tight">
+          INTERNATIONAL INKBOUND
         </h1>
         <button
           onClick={() => signIn("google")}
-          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:text-black transition-all duration-200 cursor-pointer"
+          className="text-sm sm:text-base border border-white text-white font-semibold px-4 py-2 rounded-lg hover:bg-white transition-all duration-200 cursor-pointer active:bg-white hover:text-black"
         >
           REGISTER
         </button>

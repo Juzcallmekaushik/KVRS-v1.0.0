@@ -4,27 +4,33 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { createClient } from "@/lib/supabaseClient";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const supabase = createClient();
+  const router = useRouter(); // Initialize useRouter
 
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session) return;
+    if (!session) {
+      router.push("/register"); // Redirect if no session
+      return;
+    }
 
     const fetchUserDetails = async () => {
       const { data, error } = await supabase
         .from("users")
         .select("*")
         .eq("email", session.user.email)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user details:", error.message);
+        router.push("/register"); // Redirect if error fetching user details
       } else {
         setUserDetails(data);
       }
@@ -33,7 +39,7 @@ export default function HomePage() {
     };
 
     fetchUserDetails();
-  }, [session, status, supabase]);
+  }, [session, status, supabase, router]);
 
   if (status === "loading" || loading) {
     return (
@@ -44,12 +50,17 @@ export default function HomePage() {
   }
 
   if (!userDetails && !loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center text-white">
-        No user data found.
-      </div>
-    );
+    router.push("/register"); // Ensure redirection if no userDetails
+    return null; // Prevent rendering anything while redirecting
   }
+
+  // Determine roles based on is_donor and is_author
+  const roles = (() => {
+    if (userDetails.is_donor && userDetails.is_author) return "Donor & Author";
+    if (userDetails.is_donor) return "Donor";
+    if (userDetails.is_author) return "Author";
+    return "N/A";
+  })();
 
   return (
     <div className="min-h-screen flex justify-center items-center px-6 py-12">
@@ -59,7 +70,6 @@ export default function HomePage() {
           <h3 className="font-black text-5xl text-center mb-0">{userDetails.lucky_number}</h3>
         </div>
         <div className="border-t border-white my-5 "></div>
-        <h2 className="text-l font-bold text-left mb-2 ">Your Details:</h2>
         <div className="mb-3 ">
           <p className="text-sm font-medium text-left">Name</p>
           <p className="text-lg">{userDetails.name}</p>
@@ -72,7 +82,11 @@ export default function HomePage() {
           <p className="text-sm font-medium text-left">Phone</p>
           <p className="text-lg">{userDetails.phone}</p>
         </div>
-        <div className="mt-10">
+        <div className="mb-3">
+          <p className="text-sm font-medium text-left">Roles</p>
+          <p className="text-lg text-green-300"><strong>{roles}</strong></p>
+        </div>
+        <div className="mt-5">
           <button
             onClick={() => signOut({ callbackUrl: "/register" })}
             className="text-sm text-red-500 font-medium hover:underline focus:outline-none cursor-pointer"

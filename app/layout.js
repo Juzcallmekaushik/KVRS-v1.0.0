@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Register Now!",
-  description: "Kasturi Vijayam Registration Portal",
+  description: "International InkBound Registration",
 };
 
 export default function RootLayout({ children }) {

@@ -25,11 +25,13 @@ export default function HostPage() {
       return;
     }
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from("users").select("*");
+      const { data, error } = await supabase.from("users").select("email, name, phone, lucky_number, is_donor, is_author");
       if (!error) {
-        console.log("Fetched users:", data);
+        console.log(data);
         setUsers(data);
         setFilteredUsers(data);
+      } else {
+        console.error("Error fetching users:", error.message);
       }
     };
     fetchUsers();
@@ -41,12 +43,13 @@ export default function HostPage() {
       return;
     }
     const query = searchQuery.toLowerCase().trim();
-    const filtered = users.filter(
-      (user) =>
-        user.lucky_number?.toString().includes(query) ||
-        user.name?.toLowerCase().includes(query) ||
-        user.email?.toLowerCase().includes(query) ||
-        user.phone?.toLowerCase().includes(query)
+    const filtered = users.filter((user) =>
+      user.lucky_number?.toString().includes(query) ||
+      user.name?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query) ||
+      user.phone?.toLowerCase().includes(query) ||
+      user.is_donor?.toString().toLowerCase().includes(query) ||
+      user.is_author?.toString().toLowerCase().includes(query)
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -63,13 +66,40 @@ export default function HostPage() {
     setSearchQuery(e.target.value);
   };
 
+  const handleDeleteFromSheets = async (email) => {
+    try {
+      const response = await fetch("/api/delete-from-sheets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        console.error("Error deleting user from Google Sheets:", result.error);
+        alert("Failed to delete user from Google Sheets.");
+        return false;
+      }
+
+      console.log("User successfully deleted from Google Sheets.");
+      return true;
+    } catch (err) {
+      console.error("Unexpected error deleting user from Google Sheets:", err);
+      alert("Something went wrong while deleting from Google Sheets.");
+      return false;
+    }
+  };
+
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     const confirmed = window.confirm("Are you sure you want to delete this user?");
     if (!confirmed) return;
+
     try {
       const istNow = new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Kolkata",
+        timeZone: process.env.NEXT_PUBLIC_TIMEZONE
       });
 
       const { error: insertError } = await supabase
@@ -80,6 +110,8 @@ export default function HostPage() {
             name: selectedUser.name,
             email: selectedUser.email,
             phonenumber: selectedUser.phone,
+            is_donor: selectedUser.is_donor,
+            is_author: selectedUser.is_author,
             deleted_at: istNow,
           },
         ]);
@@ -90,6 +122,7 @@ export default function HostPage() {
         return;
       }
 
+
       const { error: deleteError } = await supabase
         .from("users")
         .delete()
@@ -98,6 +131,12 @@ export default function HostPage() {
       if (deleteError) {
         console.error("Delete from users failed:", deleteError.message);
         alert("Failed to delete user from Supabase.");
+        return;
+      }
+
+      const sheetsDeleted = await handleDeleteFromSheets(selectedUser.email);
+      if (!sheetsDeleted) {
+        alert("User was deleted from Supabase but not from Google Sheets.");
         return;
       }
 
@@ -113,11 +152,24 @@ export default function HostPage() {
   const fetchDeletedUsers = async () => {
     const { data, error } = await supabase
       .from("deleted_users")
-      .select("id, lucky_number, name, email, phonenumber, deleted_at")
+      .select("id, lucky_number, name, email, phonenumber, is_donor, is_author, deleted_at")
       .order("deleted_at", { ascending: true });
 
     if (!error) {
-      setDeletedUsers(data);
+      const formattedData = data.map((user) => ({
+        ...user,
+        deleted_at: new Date(user.deleted_at).toLocaleString("en-US", {
+          timeZone: process.env.NEXT_PUBLIC_TIMEZONE,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        }).replace(",", ""),
+      }));
+      setDeletedUsers(formattedData);
       setShowDeletedModal(true);
     }
   };
@@ -162,16 +214,28 @@ export default function HostPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <div
-              key={user.email}
-              className="bg-[#131824] text-white rounded-lg shadow-lg p-3 cursor-pointer hover:bg-gray-200 hover:text-black transition-all duration-200"
-              onClick={() => handleBoxClick(user)}
-            >
-              <h1 className="text-sm text-center font-bold">Lucky Number</h1>
-              <h3 className="text-4xl font-black text-center">{user.lucky_number}</h3>
-            </div>
-          ))
+          filteredUsers.map((user) => {
+            let boxColor = "bg-[#131824] text-white";
+
+            if (user.is_author && user.is_donor) {
+              boxColor = "bg-[#5b59ff] text-white";
+            } else if (user.is_author) {
+              boxColor = "bg-[#0c4000] text-white";
+            } else if (user.is_donor) {
+              boxColor = "bg-[#920900] text-white";
+            }
+
+            return (
+              <div
+                key={user.email}
+                className={`rounded-lg shadow-lg p-3 cursor-pointer hover:bg-gray-200 hover:text-black transition-all duration-200 ${boxColor}`}
+                onClick={() => handleBoxClick(user)}
+              >
+                <h1 className="text-sm text-center font-bold">Lucky Number</h1>
+                <h3 className="text-4xl font-black text-center">{user.lucky_number}</h3>
+              </div>
+            );
+          })
         ) : (
           <div className="col-span-full text-center py-10">
             <p className="text-gray-400">No users found matching your search.</p>
@@ -194,7 +258,7 @@ export default function HostPage() {
             className="bg-white text-black rounded-lg p-6 pt-10 w-96 max-w-full relative"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="absolute top-2 right-2 flex gap-2">
+            <div className="absolute top-2 right-2 flex gap-1">
               <button
                 onClick={handleDeleteUser}
                 title="Delete User"
@@ -215,6 +279,8 @@ export default function HostPage() {
             <p><strong>Email:</strong> {selectedUser.email}</p>
             <p><strong>Phone:</strong> {selectedUser.phone}</p>
             <p><strong>Lucky Number:</strong> {selectedUser.lucky_number}</p>
+            {selectedUser.is_author && (<p><strong>Author: </strong>Yes</p>)}
+            {selectedUser.is_donor && (<p><strong>Donor: </strong>Yes</p>)}
           </div>
         </div>
       )}
@@ -226,7 +292,7 @@ export default function HostPage() {
         >
           <div
             className="bg-white text-black rounded-lg p-6 w-auto max-w-5xl overflow-y-auto max-h-[90vh]"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}                                                            
           >
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Deleted Users</h2>
@@ -242,17 +308,19 @@ export default function HostPage() {
                 <thead className="bg-gray-300">
                   <tr>
                     <th className="py-2 px-4 text-left border border-black">ID</th>
-                    <th className="py-2 px-4 text-left border border-black">Lucky Number</th>
                     <th className="py-2 px-4 text-left border border-black">Name</th>
                     <th className="py-2 px-4 text-left border border-black">Email</th>
                     <th className="py-2 px-4 text-left border border-black">Phone</th>
+                    <th className="py-2 px-4 text-left border border-black">Lucky Number</th>
+                    <th className="py-2 px-4 text-left border border-black">IsDonor?</th>
+                    <th className="py-2 px-4 text-left border border-black">IsAuthor?</th>
                     <th className="py-2 px-4 text-left border border-black">Deleted Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {deletedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="py-2 px-4 text-center text-black border border-black">
+                      <td colSpan="8" className="py-2 px-4 text-center text-black border border-black">
                         No deleted users found.
                       </td>
                     </tr>
@@ -260,10 +328,12 @@ export default function HostPage() {
                     deletedUsers.map((user) => (
                       <tr key={user.id}>
                         <td className="py-2 px-4 border border-black">{user.id}</td>
-                        <td className="py-2 px-4 border border-black">{user.lucky_number}</td>
                         <td className="py-2 px-4 border border-black">{user.name}</td>
                         <td className="py-2 px-4 border border-black">{user.email}</td>
                         <td className="py-2 px-4 border border-black">{user.phonenumber}</td>
+                        <td className="py-2 px-4 border border-black">{user.lucky_number}</td>
+                        <td className="py-2 px-4 border border-black">{user.is_donor ? "Yes" : "No"}</td>
+                        <td className="py-2 px-4 border border-black">{user.is_author ? "Yes" : "No"}</td>
                         <td className="py-2 px-4 border border-black">{user.deleted_at}</td>
                       </tr>
                     ))
