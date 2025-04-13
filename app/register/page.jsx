@@ -131,32 +131,21 @@ export default function RegisterPage() {
     );
   }
 
-
   if (session && userChecked) {
     return (
-      <div 
-      className="min-h-screen flex items-center justify-center bg-black text-white overflow-hidden"
-      //style={{ backgroundImage: 'url("/reg-bg.png")' }}
-      >
-        <div className="p-4 w-7xl max-w-lg lg:max-w-md lg:w-[500px] lg:h-[535px] border border-white rounded-lg shadow-lg bg-[#012719]/70 backdrop-blur">
-          <h2 className="text-xl font-bold text-left mb-0">CONFIRM REGISTRATION</h2>
-          <p className="text-[13px] text-left">
-            Confirm your registration and join us on <strong>31st May 2025.</strong>
-          </p>
-          <div className="border-t border-white my-4"></div>
+      <div className="min-h-screen flex items-center justify-center px-4 py-1 bg-black text-white">
+        <div className="p-6 w-full max-w-md border border-white rounded-lg shadow-lg bg-[#012719]/70 backdrop-blur">
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-left">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={userInfo.name}
-                  onChange={handleChange}
-                  className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
-                  disabled={loading || !!userInfo.firs}
-                />
-              </div>
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-left">Name</label>
+              <input
+                type="text"
+                name="name"
+                value={userInfo.name}
+                onChange={handleChange}
+                className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black"
+                disabled={loading || !!userInfo.name}
+              />
             </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-left">Email</label>
@@ -194,8 +183,8 @@ export default function RegisterPage() {
                 <p className="text-red-500 text-xs mt-2">{phoneError}</p>
               )}
             </div>
-            <div className="mb-2">
-              <label className="block text-sm font-medium mb-2">Roles</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Select Roles</label>
               <div className="flex gap-4 items-center">
                 <label className="inline-flex items-center">
                   <input
@@ -217,26 +206,12 @@ export default function RegisterPage() {
                 </label>
               </div>
             </div>
-            <div className="border-t border-white my-5"></div>
-              <div className="mb-2">
-                <label className="flex items-start gap-2">
-                  <input
-                    type="checkbox"
-                    required
-                    className="mt-0.4 accent-green-500 cursor-pointer w-4 h-4"
-                  />
-                  <span className="text-sm font-thin leading-tight">
-                    Please tick the box to confirm that you have read and agree to
-                    the <strong>Terms & Conditions</strong> before continuing.
-                  </span>
-                </label>
-              </div>
             <button
               type="submit"
-              className="w-full py-1 border border-white text-black bg-white font-semibold rounded-lg hover:bg-green-400 hover:text-black transition-all duration-200 cursor-pointer"
+              className="w-full py-2 mt-4 border border-white text-black bg-white font-semibold rounded-lg hover:bg-green-400 hover:text-black transition-all duration-200 cursor-pointer"
               disabled={loading}
             >
-              {loading ? "Registering..." : "REGISTER"}
+              {loading ? "Registering..." : "Confirm Registration"}
             </button>
           </form>
         </div>

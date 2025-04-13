@@ -81,7 +81,8 @@ export default function HostPage() {
         ]);
 
       if (insertError) {
-        alert("Failed to archive lucky number: ", insertError.message);
+        console.error("Insert to deleted_users failed:", insertError.message);
+        alert("Failed to archive lucky number.");
         return;
       }
 
@@ -91,15 +92,18 @@ export default function HostPage() {
         .eq("email", selectedUser.email);
 
       if (deleteError) {
-        alert("Failed to delete user from Supabase.", deleteError.message);
+        console.error("Delete from users failed:", deleteError.message);
+        alert("Failed to delete user from Supabase.");
         return;
       }
 
       setUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setFilteredUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setSelectedUser(null);
+      alert("User deleted and archived successfully.");
     } catch (err) {
-      alert("Something went wrong: ", err);
+      console.error("Unexpected error deleting user:", err);
+      alert("Something went wrong.");
     }
   };
 
@@ -224,7 +228,7 @@ export default function HostPage() {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold">Deleted Users</h2>
               <button
-                className="text-gray-600 hover:text-black text-2xl "
+                className="text-gray-600 hover:text-black text-2xl cursor-pointer"
                 onClick={() => setShowDeletedModal(false)}
               >
                 &times;
