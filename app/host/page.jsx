@@ -68,6 +68,10 @@ export default function HostPage() {
     const confirmed = window.confirm("Are you sure you want to delete this user?");
     if (!confirmed) return;
     try {
+      const istNow = new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Kolkata",
+      });
+
       const { error: insertError } = await supabase
         .from("deleted_users")
         .insert([
@@ -76,7 +80,7 @@ export default function HostPage() {
             name: selectedUser.name,
             email: selectedUser.email,
             phonenumber: selectedUser.phone,
-            deleted_at: new Date().toISOString(),
+            deleted_at: istNow,
           },
         ]);
 
@@ -260,9 +264,7 @@ export default function HostPage() {
                         <td className="py-2 px-4 border border-black">{user.name}</td>
                         <td className="py-2 px-4 border border-black">{user.email}</td>
                         <td className="py-2 px-4 border border-black">{user.phonenumber}</td>
-                        <td className="py-2 px-4 border border-black">
-                          {new Date(user.deleted_at).toLocaleString()}
-                        </td>
+                        <td className="py-2 px-4 border border-black">{user.deleted_at}</td>
                       </tr>
                     ))
                   )}
