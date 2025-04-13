@@ -237,7 +237,7 @@ export default function RegisterPage() {
       <div className="absolute top-0 left-0 w-full h-full bg-black/80 z-0" />
       <div className="relative z-10 flex flex-col justify-center items-center text-center px-6 py-12 min-h-screen">
         <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold tracking-wide">
-          KASTURI VIJAYAM PRESENTS
+          KASTURI VIJAYAM'S
         </h2>
         <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold mb-4 leading-tight">
           [ EVENT NAME ]
