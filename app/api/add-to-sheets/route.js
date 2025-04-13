@@ -2,7 +2,8 @@ import { google } from "googleapis";
 
 export async function POST(req) {
   try {
-    const { luckyNumber, name, email, phone, isAuthor, isDonor } = await req.json();
+    const bodyText = await req.text();
+    const { luckyNumber, name, email, phone, isAuthor, isDonor } = JSON.parse(bodyText);
 
     const auth = new google.auth.GoogleAuth({
       credentials: {

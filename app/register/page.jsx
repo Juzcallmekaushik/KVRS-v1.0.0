@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabaseClient";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({ name: "", email: "", phone: "" });
   const [countryCode, setCountryCode] = useState("+91");
+  const [countryIso2, setCountryIso2] = useState("IN");
   const [phoneError, setPhoneError] = useState("");
   const [userChecked, setUserChecked] = useState(false);
   const [isDonor, setIsDonor] = useState(false);
@@ -31,8 +33,9 @@ export default function RegisterPage() {
       try {
         const res = await fetch("https://ipapi.co/json");
         const data = await res.json();
-        if (data?.country_calling_code) {
+        if (data?.country_calling_code && data?.country) {
           setCountryCode(data.country_calling_code);
+          setCountryIso2(data.country);
         }
       } catch (err) {
         console.warn("Failed to fetch country code:", err);
@@ -68,15 +71,16 @@ export default function RegisterPage() {
 
     const { name, email, phone } = userInfo;
 
-    if (phone.length === 0 || phone.length > 10) {
-      setPhoneError("Phone number must be between 1 and 10 digits.");
+    const parsedPhone = parsePhoneNumberFromString(phone, countryIso2);
+    if (!parsedPhone || !parsedPhone.isValid()) {
+      setPhoneError("Please enter a valid phone number.");
       setLoading(false);
       return;
-    } else {
-      setPhoneError("");
     }
 
-    const fullPhone = `${countryCode} ${phone}`;
+    setPhoneError("");
+
+    const fullPhone = `+${parsedPhone.countryCallingCode} ${parsedPhone.nationalNumber}`;
     const luckyNumber = Math.floor(Math.random() * 1000) + 1;
 
     const { error } = await supabase
@@ -164,19 +168,19 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black cursor-pointer"
+                  disabled
+                  className="w-20 p-2 mt-2 border border-white rounded-md text-white bg-black cursor-not-allowed"
                 />
                 <input
-                  type="text"
+                  type="tel"
                   name="phone"
                   value={userInfo.phone}
                   onChange={handleChange}
                   className="w-full p-2 mt-2 border border-white rounded-md text-white bg-black cursor-pointer"
                   disabled={loading}
-                  placeholder="0123456789"
-                  required
+                  placeholder="Enter phone number"
                   maxLength={10}
+                  required
                 />
               </div>
               {phoneError && (

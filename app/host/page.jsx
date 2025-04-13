@@ -100,7 +100,6 @@ export default function HostPage() {
       setUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setFilteredUsers((prev) => prev.filter((u) => u.email !== selectedUser.email));
       setSelectedUser(null);
-      alert("User deleted and archived successfully.");
     } catch (err) {
       console.error("Unexpected error deleting user:", err);
       alert("Something went wrong.");
