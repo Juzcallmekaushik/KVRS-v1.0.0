@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { createClient } from "@/lib/supabaseClient";
-import { signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabaseClient";
+import { LogOut } from "lucide-react";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -42,8 +42,8 @@ export default function HomePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex justify-center items-center bg-black">
-        <img src="/favicon.ico" alt="Loading..." className="w-24 h-24 animate-pulse" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <img src="/favicon.ico" alt="Loading..." className="w-20 h-20 animate-pulse" />
       </div>
     );
   }
@@ -54,48 +54,52 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex justify-center items-center px-6 py-12">
-      <div className="w-full max-w-md border-white border-1 bg-[#000715] text-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-l font-semibold text-center mb-2">LUCKY DRAW NUMBER:</h2>
-        <div className="mb-5">
-          <h3 className="font-black text-5xl text-center mb-0">{userDetails.lucky_number}</h3>
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="w-[350px] max-w-sm md:max-w-md bg-[#0D1117] text-white rounded-2xl p-6 shadow-lg border border-white/10">
+        <div className="text-center mb-3">
+          <p className="text-sm text-gray-400">Your Lucky Draw Number</p>
+          <h1 className="text-6xl font-black text-yellow-400 tracking-widest">
+            {userDetails.lucky_number}
+          </h1>
         </div>
-        <div className="border-t border-white my-5 "></div>
-        <div className="mb-3">
-          <p className="text-sm font-medium text-left">Name</p>
-          <p className="text-lg">{userDetails.name}</p>
-        </div>
-        <div className="mb-3">
-          <p className="text-sm font-medium text-left">Email</p>
-          <p className="text-lg">{userDetails.email}</p>
-        </div>
-        <div className="mb-3">
-          <p className="text-sm font-medium text-left">Phone</p>
-          <p className="text-lg">{userDetails.phone}</p>
-        </div>
-        {(userDetails.is_donor || userDetails.is_author) && (
-          <div className="mb-3">
-            <p className="text-sm font-medium text-left">Roles</p>
-            <p className="text-lg text-green-300">
-              <strong>
-                {userDetails.is_donor && userDetails.is_author
+        <div className="border-b border-gray-800 mb-3"></div>
+        <div className="space-y-3 text-xs">
+          <Info label="Name" value={userDetails.name} />
+          <Info label="Email" value={userDetails.email} />
+          <Info label="Phone" value={userDetails.phone} />
+          {(userDetails.is_donor || userDetails.is_author) && (
+            <Info
+              label="Roles"
+              value={
+                userDetails.is_donor && userDetails.is_author
                   ? "Donor & Author"
                   : userDetails.is_donor
                   ? "Donor"
-                  : "Author"}
-              </strong>
-            </p>
-          </div>
-        )}
-        <div className="mt-5">
+                  : "Author"
+              }
+              valueClass="text-green-400 font-semibold"
+            />
+          )}
+        </div>
+        <div className="mt-6 text-center">
           <button
             onClick={() => signOut({ callbackUrl: "/register" })}
-            className="text-sm text-red-500 font-medium hover:underline focus:outline-none cursor-pointer"
+            className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-26 py-2 rounded-md shadow transition cursor-pointer"
           >
+            <LogOut className="w-4 h-4" />
             Logout
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Info({ label, value, valueClass = "text-white" }) {
+  return (
+    <div>
+      <p className="text-gray-400 text-m">{label}</p>
+      <p className={`text-base font-medium ${valueClass}`}>{value}</p>
     </div>
   );
 }
