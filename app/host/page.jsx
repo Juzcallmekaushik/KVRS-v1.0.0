@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
-import { Search, Trash } from "lucide-react";
+import { Search, Trash, Mail } from "lucide-react"; // Import the Mail icon
 
 export default function HostPage() {
   const { data: session, status } = useSession();
@@ -174,14 +174,45 @@ export default function HostPage() {
     }
   };
 
+  const handleSendEmails = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("name, email, phone, lucky_number, is_donor, is_author");
+
+      if (error) {
+        console.error("Error fetching user details:", error.message);
+        alert("Failed to fetch user details.");
+        return;
+      }
+
+      const response = await fetch("/api/send-emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ users: data }),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        console.error("Error sending emails:", result.error);
+        alert("Failed to send emails.");
+        return;
+      }
+
+      alert("Emails sent successfully!");
+    } catch (err) {
+      console.error("Unexpected error while sending emails:", err);
+      alert("Something went wrong while sending emails.");
+    }
+  };
+
   if (status === "loading" || !session) return null;
 
-  if (!allowedEmails.includes(session?.user?.email)) {
-    return (
-      <div className="min-h-screen flex justify-center items-center bg-black text-white">
-        <p className="animate-pulse">Access Denied</p>
-      </div>
-    );
+  if (!session || !allowedEmails.includes(session.user.email)) {
+    router.replace("/register");
+    return;
   }
 
   return (
@@ -199,6 +230,13 @@ export default function HostPage() {
       <div className="absolute top-16 right-6 mt-4 flex items-center gap-2">
         <button onClick={fetchDeletedUsers} className="text-gray-400 hover:text-white cursor-pointer">
           <Trash size={18} />
+        </button>
+        <button 
+          onClick={handleSendEmails} 
+          className={`text-gray-400 hover:text-white cursor-pointer ${users.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+          disabled={users.length === 0}
+          >
+          <Mail size={18} />
         </button>
         <div className="relative">
           <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />

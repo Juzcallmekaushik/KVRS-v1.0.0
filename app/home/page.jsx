@@ -1,15 +1,14 @@
-// pages/home/page.jsx
 "use client";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { createClient } from "@/lib/supabaseClient";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const supabase = createClient();
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +16,7 @@ export default function HomePage() {
   useEffect(() => {
     if (status === "loading") return;
     if (!session) {
-      router.push("/register"); // Redirect if no session
+      router.push("/register");
       return;
     }
 
@@ -30,7 +29,7 @@ export default function HomePage() {
 
       if (error) {
         console.error("Error fetching user details:", error.message);
-        router.push("/register"); // Redirect if error fetching user details
+        router.push("/register");
       } else {
         setUserDetails(data);
       }
@@ -50,8 +49,8 @@ export default function HomePage() {
   }
 
   if (!userDetails && !loading) {
-    router.push("/register"); // Ensure redirection if no userDetails
-    return null; // Prevent rendering anything while redirecting
+    router.push("/register");
+    return null;
   }
 
   return (
