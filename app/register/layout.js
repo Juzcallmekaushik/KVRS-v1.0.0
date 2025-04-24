@@ -1,5 +1,5 @@
 export const metadata = {
-    title: "Register Now!",
+    title: "International InkBound",
   };
   
   export default function RegisterLayout({ children }) {

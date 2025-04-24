@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Register Now!",
-  description: "International InkBound Registration",
+  title: "International InkBound",
+  description: "Register now for the International InkBound event!",
 };
 
 export default function RootLayout({ children }) {
