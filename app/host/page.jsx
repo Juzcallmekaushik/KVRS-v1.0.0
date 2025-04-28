@@ -340,17 +340,19 @@ export default function HostPage() {
             <p><strong>Phone:</strong> {selectedUser.phone }</p>
             <p><strong>Lucky Number:</strong> {selectedUser.lucky_number }</p>
             <p><strong>Guests:</strong> {selectedUser.guestcount}</p>
-            <p>
-              <strong>Role:</strong>{" "}
-              {[
-                selectedUser.is_author && "Author",
-                selectedUser.is_donor && "Donor",
-                selectedUser.is_volunteer && "Volunteer",
-              ]
-                .filter(Boolean)
-                .join(", ")
-                .replace(/, ([^,]*)$/, " & $1") }
-            </p>
+            {selectedUser.is_author || selectedUser.is_donor || selectedUser.is_volunteer ? (
+              <p>
+                <strong>Role:</strong>{" "}
+                {[
+                  selectedUser.is_author && "Author",
+                  selectedUser.is_donor && "Donor",
+                  selectedUser.is_volunteer && "Volunteer",
+                ]
+                  .filter(Boolean)
+                  .join(", ")
+                  .replace(/, ([^,]*)$/, " & $1") }
+              </p>
+            ) : null}
             {selectedUser.remarks && selectedUser.remarks.trim() && (
               <p><strong>Remarks:</strong> {selectedUser.remarks}</p>
             )}
