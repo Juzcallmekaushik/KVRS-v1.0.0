@@ -25,7 +25,7 @@ export default function HostPage() {
       return;
     }
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from("users").select("email, name, phone, lucky_number, is_donor, is_author, is_volunteer, slot, remarks");
+      const { data, error } = await supabase.from("users").select("email, name, phone, lucky_number, is_donor, is_author, is_volunteer, slot, remarks, guestcount");
       if (!error) {
         console.log(data);
         setUsers(data);
@@ -52,7 +52,8 @@ export default function HostPage() {
       user.is_author?.toString().toLowerCase().includes(query) ||
       user.is_volunteer?.toString().toLowerCase().includes(query) ||
       user.slot?.toLowerCase().includes(query) ||
-      user.remarks?.toLowerCase().includes(query)
+      user.remarks?.toLowerCase().includes(query) ||
+      user.guestcount?.toString().includes(query)
 
     );
     setFilteredUsers(filtered);
@@ -118,6 +119,7 @@ export default function HostPage() {
             is_author: selectedUser.is_author,
             is_volunteer: selectedUser.is_volunteer,
             slot: selectedUser.slot,
+            guestcount: selectedUser.guestcount,
             deleted_at: istNow,
           },
         ]);
@@ -158,7 +160,7 @@ export default function HostPage() {
   const fetchDeletedUsers = async () => {
     const { data, error } = await supabase
       .from("deleted_users")
-      .select("id, lucky_number, name, email, phonenumber, is_donor, is_author, is_volunteer, slot, deleted_at")
+      .select("id, lucky_number, name, email, phonenumber, is_donor, is_author, is_volunteer, slot, guestcount, deleted_at")
       .order("deleted_at", { ascending: true });
 
     if (!error) {
@@ -186,7 +188,7 @@ export default function HostPage() {
     try {
       const { data, error } = await supabase
         .from("users")
-        .select("name, email, phone, lucky_number, is_donor, is_author");
+        .select("name, email, phone, lucky_number, is_donor, is_author, is_volunteer, slot, remarks, guestcount");
 
       if (error) {
         console.error("Error fetching user details:", error.message);
@@ -337,6 +339,7 @@ export default function HostPage() {
             <p><strong>Email:</strong> {selectedUser.email }</p>
             <p><strong>Phone:</strong> {selectedUser.phone }</p>
             <p><strong>Lucky Number:</strong> {selectedUser.lucky_number }</p>
+            <p><strong>Guests:</strong> {selectedUser.guestcount}</p>
             <p>
               <strong>Role:</strong>{" "}
               {[
@@ -386,6 +389,7 @@ export default function HostPage() {
                     <th className="py-2 px-4 text-left border border-black">IsAuthor?</th>
                     <th className="py-2 px-4 text-left border border-black">IsVolunteer?</th>
                     <th className="py-2 px-4 text-left border border-black">Slot Booked</th>
+                    <th className="py-2 px-4 text-left border border-black">Guest Count</th>
                     <th className="py-2 px-4 text-left border border-black">Deleted Date</th>
                   </tr>
                 </thead>
@@ -408,6 +412,7 @@ export default function HostPage() {
                         <td className="py-2 px-4 border border-black">{user.is_author ? "Yes" : "No"}</td>
                         <td className="py-2 px-4 border border-black">{user.is_volunteer ? "Yes" : "No"}</td>
                         <td className="py-2 px-4 border border-black">{user.slot}</td>
+                        <td className="py-2 px-4 border border-black">{user.guestcount}</td>
                         <td className="py-2 px-4 border border-black">{user.deleted_at}</td>
                       </tr>
                     ))
@@ -421,3 +426,5 @@ export default function HostPage() {
     </div>
   );
 }
+
+

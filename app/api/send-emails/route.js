@@ -21,6 +21,7 @@ export async function POST(req) {
       const roles = [];
       if (user.is_donor) roles.push("Donor");
       if (user.is_author) roles.push("Author");
+      if (user.is_volunteer) roles.push("Volunteer");
 
       const mailOptions = {
         from: '"KVRS Bot" <host.kvrs@gmail.com>',
@@ -34,7 +35,11 @@ export async function POST(req) {
             <li><strong style="color: #000000;">Email:</strong> <a href="mailto:${user.email}" style="color: #007bff; text-decoration: none;">${user.email}</a></li>
             <li><strong style="color: #000000;">Phone:</strong> <span style="color: #000000;">${user.phone}</span></li>
             <li><strong style="color: #000000;">Lucky Number:</strong> <span style="color: #000000;">${user.lucky_number}</span></li>
+            <li><strong style="color: #000000;">Guest Count:</strong> <span style="color: #000000;">${user.guestcount || "None"}</span></li>
             <li><strong style="color: #000000;">Roles:</strong> <span style="color: #000000;">${roles.length > 0 ? roles.join(" & ") : "None"}</span></li>
+            <li><strong style="color: #000000;">Slot Booked:</strong> <span style="color: #000000;">${user.slot }</span></li>
+            <li><strong style="color: #000000;">Remarks:</strong> <span style="color: #000000;">${user.remarks || "None provided"}</span></li>
+            
           </ul>
           <p style="color: #000000;">
             Tap <a href="https://registration.kasturivijayam.com/" target="_blank" style="color: #007bff; text-decoration: none;">here</a> to access the registration portal. 

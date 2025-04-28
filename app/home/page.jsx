@@ -124,6 +124,13 @@ export default function HomePage() {
                 valueClass="break-words"
               />
             )}
+          {userDetails.guestcount !== null && userDetails.guestcount !== undefined && (
+            <Info
+              label="Guest Count"
+              value={userDetails.guestcount}
+              valueClass="break-words"
+            />
+          )}
           </div>
           <div className="mt-6 text-center">
             <button

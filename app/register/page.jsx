@@ -16,6 +16,8 @@ export default function RegisterPage() {
   const [isVolunteer, setIsVolunteer] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState("");
   const [userInfo, setUserInfo] = useState({ name: "", email: "", phone: "" });
+  const [bringingGuests, setBringingGuests] = useState(false);
+  const [guestCount, setGuestCount] = useState("");
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -105,6 +107,12 @@ export default function RegisterPage() {
       return;
     }
 
+    if (bringingGuests && (!guestCount || guestCount < 1 || guestCount > 2)) {
+      alert("Please specify a valid number of guests (1 or 2).");
+      setLoading(false);
+      return;
+    }
+
     const fullPhone = parsedPhone.formatInternational();
     const luckyNumber = Math.floor(Math.random() * 1000) + 1;
 
@@ -121,6 +129,7 @@ export default function RegisterPage() {
           is_volunteer: isVolunteer,
           slot: selectedSlot,
           remarks: document.querySelector("textarea[name='remarks']").value,
+          guestcount: bringingGuests ? guestCount : 0,
         },
       ]);
 
@@ -143,6 +152,7 @@ export default function RegisterPage() {
         isVolunteer,
         slot: selectedSlot,
         remarks: document.querySelector("textarea[name='remarks']").value,
+        guestCount: bringingGuests ? guestCount : 0,
       }),
     });
 
@@ -253,6 +263,51 @@ export default function RegisterPage() {
       </label>
       </div>
       </div>
+      
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Are you bringing guests?</label>
+        <div className="flex gap-4 items-center">
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              name="bringingGuests"
+              value="yes"
+              onChange={() => setBringingGuests(true)}
+              className="mr-2 accent-green-500 cursor-pointer"
+              disabled={loading}
+            />
+            Yes
+          </label>
+          <label className="inline-flex items-center">
+            <input
+              type="radio"
+              name="bringingGuests"
+              value="no"
+              onChange={() => setBringingGuests(false)}
+              className="mr-2 accent-green-500 cursor-pointer"
+              disabled={loading}
+            />
+            No
+          </label>
+        </div>
+      </div>
+
+      {bringingGuests && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">How many guests?</label>
+          <input
+            type="number"
+            name="guestCount"
+            min="1"
+            max="2"
+            value={guestCount}
+            onChange={(e) => setGuestCount(e.target.value)}
+            className="w-full p-2 border border-white rounded-md text-white bg-black placeholder-gray-400 focus:outline-none"
+            placeholder="Enter number of guests (max 2)"
+            disabled={loading}
+          />
+        </div>
+      )}
       <div className="mb-4">
       <label className="block text-sm font-medium mb-2">Select Your Slot</label>
       <select
@@ -269,7 +324,7 @@ export default function RegisterPage() {
           Singuluri Slot @ 3:00 PM - 4:00 PM
         </option>
         <option value="Kasturi Vijayam Slot @ 4:10 PM - 5:50 PM">Kasturi Vijayam Slot @ 4:10 PM - 5:50 PM</option>
-        <option value="International InkBound Slot @ 6:00 PM - 8:30 PM">InkBound Slot @ 6:00 PM - 8:30 PM</option>
+        <option value="International InkBound Slot @ 6:00 PM - 8:30 PM">InkBound Slot@ 6:00 PM - 8:30 PM</option>
       </select>
       </div>
       <div className="mb-4">
@@ -281,6 +336,7 @@ export default function RegisterPage() {
         placeholder="Enter any remarks or additional information here..."
         onChange={handleChange}
         disabled={loading}
+        maxLength={200}
       />
       </div>
       <button
