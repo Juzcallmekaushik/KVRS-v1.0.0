@@ -353,9 +353,11 @@ export default function HostPage() {
                   .replace(/, ([^,]*)$/, " & $1") }
               </p>
             ) : null}
+            <p><strong>Slot:</strong> {selectedUser.slot}</p>
             {selectedUser.remarks && selectedUser.remarks.trim() && (
               <p><strong>Remarks:</strong> {selectedUser.remarks}</p>
             )}
+
           </div>
         </div>
       )}
