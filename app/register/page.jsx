@@ -264,12 +264,12 @@ export default function RegisterPage() {
         <option value="" disabled>
           Select a slot
         </option>
-        <option value="Nutalapati Slot @ 2:00 PM - 3:00 PM">Nutalapati @ 2:00 PM - 3:00 PM</option>
-        <option value="Siluguri Slot @ 3:30 PM - 4:30 PM" disabled>
-          Siluguri @ 3:30 PM - 4:30 PM
+        <option value="Nutalapati Slot @ 2:00 PM - 3:00 PM">Nutalapati Slot @ 2:00 PM - 3:00 PM</option>
+        <option value="Singuluri Slot @ 3:00 PM - 4:00 PM" disabled>
+          Singuluri Slot @ 3:00 PM - 4:00 PM
         </option>
-        <option value="Kasturi Vijayam Slot @ 4:50 PM - 5:50 PM">Kasturi Vijayam @ 4:50 PM - 5:50 PM</option>
-        <option value="International InkBound Slot @ 6:00 PM - 8:00 PM">InkBound @ 6:00 PM - 8:00 PM</option>
+        <option value="Kasturi Vijayam Slot @ 4:10 PM - 5:50 PM">Kasturi Vijayam Slot @ 4:10 PM - 5:50 PM</option>
+        <option value="International InkBound Slot @ 6:00 PM - 8:30 PM">InkBound Slot @ 6:00 PM - 8:30 PM</option>
       </select>
       </div>
       <div className="mb-4">
