@@ -25,7 +25,7 @@ export default function HostPage() {
       return;
     }
     const fetchUsers = async () => {
-      const { data, error } = await supabase.from("users").select("email, name, phone, lucky_number, is_donor, is_author");
+      const { data, error } = await supabase.from("users").select("email, name, phone, lucky_number, is_donor, is_author, is_volunteer, slot, remarks");
       if (!error) {
         console.log(data);
         setUsers(data);
@@ -49,7 +49,11 @@ export default function HostPage() {
       user.email?.toLowerCase().includes(query) ||
       user.phone?.toLowerCase().includes(query) ||
       user.is_donor?.toString().toLowerCase().includes(query) ||
-      user.is_author?.toString().toLowerCase().includes(query)
+      user.is_author?.toString().toLowerCase().includes(query) ||
+      user.is_volunteer?.toString().toLowerCase().includes(query) ||
+      user.slot?.toLowerCase().includes(query) ||
+      user.remarks?.toLowerCase().includes(query)
+
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -112,6 +116,8 @@ export default function HostPage() {
             phonenumber: selectedUser.phone,
             is_donor: selectedUser.is_donor,
             is_author: selectedUser.is_author,
+            is_volunteer: selectedUser.is_volunteer,
+            slot: selectedUser.slot,
             deleted_at: istNow,
           },
         ]);
@@ -152,7 +158,7 @@ export default function HostPage() {
   const fetchDeletedUsers = async () => {
     const { data, error } = await supabase
       .from("deleted_users")
-      .select("id, lucky_number, name, email, phonenumber, is_donor, is_author, deleted_at")
+      .select("id, lucky_number, name, email, phonenumber, is_donor, is_author, is_volunteer, slot, deleted_at")
       .order("deleted_at", { ascending: true });
 
     if (!error) {
@@ -171,6 +177,8 @@ export default function HostPage() {
       }));
       setDeletedUsers(formattedData);
       setShowDeletedModal(true);
+    } else {
+      console.error("Error fetching deleted users:", error.message);
     }
   };
 
@@ -235,7 +243,7 @@ export default function HostPage() {
           onClick={handleSendEmails} 
           className={`text-gray-400 hover:text-white cursor-pointer ${users.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
           disabled={users.length === 0}
-          >
+        >
           <Mail size={18} />
         </button>
         <div className="relative">
@@ -259,12 +267,20 @@ export default function HostPage() {
           filteredUsers.map((user) => {
             let boxColor = "bg-[#131824] text-white";
 
-            if (user.is_author && user.is_donor) {
-              boxColor = "bg-[#5b59ff] text-white";
+            if (user.is_author && user.is_donor && user.is_volunteer) {
+              boxColor = "bg-[#ac99e6] text-black";
+            } else if (user.is_author && user.is_donor) {
+              boxColor = "bg-[#68cfff] text-black";
+            } else if (user.is_author && user.is_volunteer) {
+              boxColor = "bg-[#f666f6] text-black";
+            } else if (user.is_donor && user.is_volunteer) {
+              boxColor = "bg-[#fbb757] text-black";
             } else if (user.is_author) {
-              boxColor = "bg-[#0c4000] text-white";
+              boxColor = "bg-[#b7e1cd] text-black";
             } else if (user.is_donor) {
-              boxColor = "bg-[#920900] text-white";
+              boxColor = "bg-[#ea4335] text-black";
+            } else if (user.is_volunteer) {
+              boxColor = "bg-[#ffff7f] text-black";
             }
 
             return (
@@ -274,7 +290,7 @@ export default function HostPage() {
                 onClick={() => handleBoxClick(user)}
               >
                 <h1 className="text-sm text-center font-bold">Lucky Number</h1>
-                <h3 className="text-4xl font-black text-center">{user.lucky_number}</h3>
+                <h3 className="text-4xl font-black text-center">{user.lucky_number }</h3>
               </div>
             );
           })
@@ -317,12 +333,24 @@ export default function HostPage() {
               </button>
             </div>
             <h2 className="text-2xl font-semibold mb-4">User Details</h2>
-            <p><strong>Name:</strong> {selectedUser.name}</p>
-            <p><strong>Email:</strong> {selectedUser.email}</p>
-            <p><strong>Phone:</strong> {selectedUser.phone}</p>
-            <p><strong>Lucky Number:</strong> {selectedUser.lucky_number}</p>
-            {selectedUser.is_author && (<p><strong>Author: </strong>Yes</p>)}
-            {selectedUser.is_donor && (<p><strong>Donor: </strong>Yes</p>)}
+            <p><strong>Name:</strong> {selectedUser.name }</p>
+            <p><strong>Email:</strong> {selectedUser.email }</p>
+            <p><strong>Phone:</strong> {selectedUser.phone }</p>
+            <p><strong>Lucky Number:</strong> {selectedUser.lucky_number }</p>
+            <p>
+              <strong>Role:</strong>{" "}
+              {[
+                selectedUser.is_author && "Author",
+                selectedUser.is_donor && "Donor",
+                selectedUser.is_volunteer && "Volunteer",
+              ]
+                .filter(Boolean)
+                .join(", ")
+                .replace(/, ([^,]*)$/, " & $1") }
+            </p>
+            {selectedUser.remarks && selectedUser.remarks.trim() && (
+              <p><strong>Remarks:</strong> {selectedUser.remarks}</p>
+            )}
           </div>
         </div>
       )}
@@ -356,13 +384,15 @@ export default function HostPage() {
                     <th className="py-2 px-4 text-left border border-black">Lucky Number</th>
                     <th className="py-2 px-4 text-left border border-black">IsDonor?</th>
                     <th className="py-2 px-4 text-left border border-black">IsAuthor?</th>
+                    <th className="py-2 px-4 text-left border border-black">IsVolunteer?</th>
+                    <th className="py-2 px-4 text-left border border-black">Slot Booked</th>
                     <th className="py-2 px-4 text-left border border-black">Deleted Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {deletedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan="8" className="py-2 px-4 text-center text-black border border-black">
+                      <td colSpan="10" className="py-2 px-4 text-center text-black border border-black">
                         No deleted users found.
                       </td>
                     </tr>
@@ -376,6 +406,8 @@ export default function HostPage() {
                         <td className="py-2 px-4 border border-black">{user.lucky_number}</td>
                         <td className="py-2 px-4 border border-black">{user.is_donor ? "Yes" : "No"}</td>
                         <td className="py-2 px-4 border border-black">{user.is_author ? "Yes" : "No"}</td>
+                        <td className="py-2 px-4 border border-black">{user.is_volunteer ? "Yes" : "No"}</td>
+                        <td className="py-2 px-4 border border-black">{user.slot}</td>
                         <td className="py-2 px-4 border border-black">{user.deleted_at}</td>
                       </tr>
                     ))
