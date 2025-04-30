@@ -46,15 +46,7 @@ export default function HostPage() {
     const filtered = users.filter((user) =>
       user.lucky_number?.toString().includes(query) ||
       user.name?.toLowerCase().includes(query) ||
-      user.email?.toLowerCase().includes(query) ||
-      user.phone?.toLowerCase().includes(query) ||
-      user.is_donor?.toString().toLowerCase().includes(query) ||
-      user.is_author?.toString().toLowerCase().includes(query) ||
-      user.is_volunteer?.toString().toLowerCase().includes(query) ||
-      user.slot?.toLowerCase().includes(query) ||
-      user.remarks?.toLowerCase().includes(query) ||
-      user.guestcount?.toString().includes(query)
-
+      user.slot?.toLowerCase().includes(query)
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -299,7 +291,8 @@ export default function HostPage() {
 
       <div className="fixed bottom-0 left-0 right-0 py-3 bg-black text-center">
         <p className="text-sm text-gray-500">
-          Showing {filteredUsers.length} of {users.length} users ({users.reduce((total, user) => total + (user.guestcount || 0), 0)} Guests)
+          Showing {filteredUsers.length} of {users.length} users ({users.reduce((total, user) => total + (user.guestcount || 0), 0)} Guests) — {" "}
+          {users.length + users.reduce((total, user) => total + (user.guestcount || 0), 0)} People
         </p>
       </div>
 
