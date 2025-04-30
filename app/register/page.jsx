@@ -114,7 +114,28 @@ export default function RegisterPage() {
     }
 
     const fullPhone = parsedPhone.formatInternational();
-    const luckyNumber = Math.floor(Math.random() * 1000) + 1;
+
+    let luckyNumber;
+    let isUnique = false;
+
+    while (!isUnique) {
+      luckyNumber = Math.floor(Math.random() * 1000) + 1;
+      const { data, error } = await supabase
+        .from("users")
+        .select("lucky_number")
+        .eq("lucky_number", luckyNumber)
+        .single();
+
+      if (error && error.code === "PGRST116") {
+        isUnique = true;
+      } else if (data) {
+        console.log(`Lucky number ${luckyNumber} already exists. Generating a new one.`);
+      } else {
+        console.error("Error checking lucky number uniqueness:", error.message);
+        setLoading(false);
+        return;
+      }
+    }
 
     const { error } = await supabase
       .from("users")

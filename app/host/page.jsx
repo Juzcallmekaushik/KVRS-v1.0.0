@@ -269,20 +269,14 @@ export default function HostPage() {
           filteredUsers.map((user) => {
             let boxColor = "bg-[#131824] text-white";
 
-            if (user.is_author && user.is_donor && user.is_volunteer) {
-              boxColor = "bg-[#ac99e6] text-black";
-            } else if (user.is_author && user.is_donor) {
-              boxColor = "bg-[#68cfff] text-black";
-            } else if (user.is_author && user.is_volunteer) {
-              boxColor = "bg-[#f666f6] text-black";
-            } else if (user.is_donor && user.is_volunteer) {
-              boxColor = "bg-[#fbb757] text-black";
-            } else if (user.is_author) {
+            if (user.slot === "Nutalapati Slot") {
+              boxColor = "bg-[#b4a7d6] text-black";
+            } else if (user.slot === "Kasturi Vijayam Slot") {
+              boxColor = "bg-[#ffe599] text-black";
+            } else if (user.slot === "International InkBound Slot") {
+              boxColor = "bg-[#6fa8dc] text-black";
+            } else if (user.slot === "Singuluri Slot") {
               boxColor = "bg-[#b7e1cd] text-black";
-            } else if (user.is_donor) {
-              boxColor = "bg-[#ea4335] text-black";
-            } else if (user.is_volunteer) {
-              boxColor = "bg-[#ffff7f] text-black";
             }
 
             return (
@@ -292,7 +286,7 @@ export default function HostPage() {
                 onClick={() => handleBoxClick(user)}
               >
                 <h1 className="text-sm text-center font-bold">Lucky Number</h1>
-                <h3 className="text-4xl font-black text-center">{user.lucky_number }</h3>
+                <h3 className="text-4xl font-black text-center">{user.lucky_number}</h3>
               </div>
             );
           })
@@ -305,7 +299,7 @@ export default function HostPage() {
 
       <div className="fixed bottom-0 left-0 right-0 py-3 bg-black text-center">
         <p className="text-sm text-gray-500">
-          Showing {filteredUsers.length} of {users.length} users
+          Showing {filteredUsers.length} of {users.length} users ({users.reduce((total, user) => total + (user.guestcount || 0), 0)} Guests)
         </p>
       </div>
 
