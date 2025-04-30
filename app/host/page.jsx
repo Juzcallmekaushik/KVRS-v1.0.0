@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
-import { Search, Trash, Mail } from "lucide-react"; // Import the Mail icon
+import { Search, Trash, Mail, FileSpreadsheet } from "lucide-react";
 
 export default function HostPage() {
   const { data: session, status } = useSession();
@@ -232,6 +232,12 @@ export default function HostPage() {
       <div className="absolute top-16 right-6 mt-4 flex items-center gap-2">
         <button onClick={fetchDeletedUsers} className="text-gray-400 hover:text-white cursor-pointer">
           <Trash size={18} />
+        </button>
+        <button 
+          onClick={() => window.open("https://docs.google.com/spreadsheets/d/1ECvFkFM3ScLXitWWu84cQhCTW--CLoRXNPBQAGkSdu0/edit?usp=sharing", "_blank")}
+          className={`text-gray-400 hover:text-white cursor-pointer ${users.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+        >
+          <FileSpreadsheet size={18} />
         </button>
         <button 
           onClick={handleSendEmails} 
