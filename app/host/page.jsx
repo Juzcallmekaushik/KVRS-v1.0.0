@@ -235,14 +235,14 @@ export default function HostPage() {
         </button>
         <button 
           onClick={() => window.open("https://docs.google.com/spreadsheets/d/1ECvFkFM3ScLXitWWu84cQhCTW--CLoRXNPBQAGkSdu0/edit?usp=sharing", "_blank")}
-          className={`text-gray-400 hover:text-white cursor-pointer ${users.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+          className={`text-gray-400 hover:text-white cursor-pointer ${filteredUsers.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
         >
           <FileSpreadsheet size={18} />
         </button>
         <button 
           onClick={handleSendEmails} 
-          className={`text-gray-400 hover:text-white cursor-pointer ${users.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
-          disabled={users.length === 0}
+          className={`text-gray-400 hover:text-white cursor-pointer ${filteredUsers.length === 0 ? "opacity-30 cursor-not-allowed" : ""}`}
+          disabled={filteredUsers.length === 0}
         >
           <Mail size={18} />
         </button>
@@ -259,11 +259,11 @@ export default function HostPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {users.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <div className="col-span-full flex justify-center items-center min-h-[50vh]">
-            <p className="text-gray-400 text-center">😅 Whoops! No one’s signed up yet — spread the word and get the ball rolling!</p>
+            <p className="text-gray-400 text-center">🔍 No users found matching your search — try adjusting your search terms.</p>
           </div>
-        ) : filteredUsers.length > 0 ? (
+        ) : (
           filteredUsers.map((user) => {
             let boxColor = "bg-[#131824] text-white";
 
@@ -288,17 +288,13 @@ export default function HostPage() {
               </div>
             );
           })
-        ) : (
-          <div className="col-span-full flex justify-center items-center min-h-[50vh]">
-            <p className="text-gray-400 text-center">🔍 No users found matching your search — try adjusting your search terms.</p>
-          </div>
         )}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 py-3 bg-black text-center">
         <p className="text-sm text-gray-500">
-          Showing {filteredUsers.length} of {users.length} users ({users.reduce((total, user) => total + (user.guestcount || 0), 0)} Guests) — {" "}
-          {users.length + users.reduce((total, user) => total + (user.guestcount || 0), 0)} People
+          Showing {filteredUsers.length} of {users.length} users ({filteredUsers.reduce((total, user) => total + (user.guestcount || 0), 0)} Guests) — {" "}
+          {filteredUsers.length + filteredUsers.reduce((total, user) => total + (user.guestcount || 0), 0)} People
         </p>
       </div>
 
